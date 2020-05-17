@@ -22,14 +22,14 @@ bool Player::MakeMove()
 
 		pos = this->field->CoordPerform(s);
 
-		if (this->field->ValidateChoose(pos, this->cell)) {
+		if (this->field->ValidateChoose(pos, this->cellPawn, this->cellQueen)) {
 
 
 			pos = this->field->CoordPerform(s);
 
 			std::cout << "your choice:  " << pos.first << " " << pos.second << std::endl;
 
-			//this->field->ChooseCell(s, this->cell, this->field);
+			
 			std::cout << "enter you coords: ";
 			std::cin >> s;
 
@@ -38,7 +38,7 @@ bool Player::MakeMove()
 				Cells::position endPos;
 				endPos = this->field->CoordPerform(s);
 
-				if (this->field->ValidateSell(endPos, this->cell, this->field, pos))
+				if (this->field->ValidateSell(endPos, this->cellPawn,this->cellQueen, this->field, pos))
 				{
 
 					return true;
@@ -56,10 +56,11 @@ std::string Player::GetName()
 	return this->name;
 }
 
-void Player::InitPlayer(std::string name, Cells cell)
+void Player::InitPlayer(std::string name, Cells cellPawn, Cells cellQueen)
 {
 	this->name = name;
-	this->cell = cell;
+	this->cellPawn = cellPawn;
+	this->cellQueen = cellQueen;
 }
 
 void Player::SetField(Field* field)

@@ -20,12 +20,12 @@ bool Manager::Init()
 	std::string name;
 	std::cout << "enter the name player of WHITE: ";
 	std::cin >> name;
-	player1->InitPlayer(name, Cells::State::WHITE);
+	player1->InitPlayer(name, Cells::State::WHITE, Cells::State::QUEEN_W);
 	player1->SetField(this->field);
 	std::cout << std::endl;
 	std::cout << "enter the name player of BLACK: ";
 	std::cin >> name;
-	player2->InitPlayer(name, Cells::State::BLACK);
+	player2->InitPlayer(name, Cells::State::BLACK, Cells::State::QUEEN_B);
 	player2->SetField(this->field);
 	std::cout << std::endl;
 	currentPlayer = player1;
