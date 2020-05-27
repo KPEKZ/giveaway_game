@@ -305,10 +305,14 @@ bool Field::ValidateSell(Cells::position endPos, Cells cellPawn, Cells cellQueen
 							int BlackY{ 0 };
 							int countBlack{ 0 };
 
+							int j{ 0 }, i{ 0 };
+
 							int counterY{ PrevPos.second };
 							int counterX{ PrevPos.first };
 
-							while (counterY <= endPos.second && counterX <= endPos.first) {
+							
+
+							while (j <= abs(dx) && i <= abs(dy)) {
 
 
 								if ((this->cells[counterY][counterX].GetState() == Cells::State::WHITE ||
@@ -342,21 +346,22 @@ bool Field::ValidateSell(Cells::position endPos, Cells cellPawn, Cells cellQueen
 									counterX--;
 								}
 
+								i++;
+								j++;
 							}
-
-							int lengthBlackDy = BlackY - PrevPos.second;
-							int lengthBlackDx = BlackX - PrevPos.first;
+							
+							
 
 							if (!white) {
 
 								
-									if (abs(dy) > abs(lengthBlackDy) && countBlack == 1) {
+									if (countBlack == 1) {
 										field->DeleteCell(PrevPos.first, PrevPos.second);
 										field->DeleteCell(BlackX, BlackY);
 										field->SetCell(endPos.first, endPos.second, cellQueen.GetState());
 										return true;
 									}
-								else {
+								else if (countBlack == 0){
 									field->DeleteCell(PrevPos.first, PrevPos.second);
 									field->SetCell(endPos.first, endPos.second, cellQueen.GetState());
 									return true;
@@ -378,40 +383,84 @@ bool Field::ValidateSell(Cells::position endPos, Cells cellPawn, Cells cellQueen
 						int dx = endPos.first - PrevPos.first;
 						int dy = endPos.second - PrevPos.second;
 
-						int lengthWhite{ 0 };
-						int lengthBlack{ 0 };
 
-						for (int i{ PrevPos.second }, j{ PrevPos.first }; i != endPos.second && j != endPos.first; i++, j++) {
-							if ((this->cells[i][j].GetState() == Cells::State::BLACK ||
-								this->cells[i][j].GetState() == Cells::State::QUEEN_B) &&
-								lengthBlack != PrevPos.second) {
-								lengthBlack = i;
+						if (PrevPos.second != endPos.second && PrevPos.first != endPos.first) {
+
+							bool black{ false };
+							int WhiteX{ 0 };
+							int WhiteY{ 0 };
+							int countWhite{ 0 };
+
+							int j{ 0 }, i{ 0 };
+
+							int counterY{ PrevPos.second };
+							int counterX{ PrevPos.first };
+
+
+
+							while (j <= abs(dx) && i <= abs(dy)) {
+
+
+								if ((this->cells[counterY][counterX].GetState() == Cells::State::WHITE ||
+									this->cells[counterY][counterX].GetState() == Cells::State::QUEEN_W) &&
+									counterY != PrevPos.second) {
+									black = true;
+								}
+
+								if ((this->cells[counterY][counterX].GetState() == Cells::State::BLACK ||
+									this->cells[counterY][counterX].GetState() == Cells::State::QUEEN_B) &&
+									counterY != PrevPos.second) {
+									WhiteY = counterY;
+									WhiteX = counterX;
+									countWhite++;
+								}
+
+								if (endPos.second > PrevPos.second && endPos.first > PrevPos.first) {
+									counterY++;
+									counterX++;
+								}
+								else if (endPos.second < PrevPos.second && endPos.first < PrevPos.first) {
+									counterY--;
+									counterX--;
+								}
+								else if (endPos.second < PrevPos.second && endPos.first > PrevPos.first) {
+									counterY--;
+									counterX++;
+								}
+								else if (endPos.second > PrevPos.second && endPos.first < PrevPos.first) {
+									counterY++;
+									counterX--;
+								}
+
+								i++;
+								j++;
 							}
 
-							if ((this->cells[i][j].GetState() == Cells::State::WHITE ||
-								this->cells[i][j].GetState() == Cells::State::QUEEN_W) &&
-								lengthWhite != PrevPos.second) {
-								lengthWhite = i;
+
+
+							if (!black) {
+
+
+								if (countWhite == 1) {
+									field->DeleteCell(PrevPos.first, PrevPos.second);
+									field->DeleteCell(WhiteX, WhiteY);
+									field->SetCell(endPos.first, endPos.second, cellQueen.GetState());
+									return true;
+								}
+								else if (countWhite == 0) {
+									field->DeleteCell(PrevPos.first, PrevPos.second);
+									field->SetCell(endPos.first, endPos.second, cellQueen.GetState());
+									return true;
+								}
+
+
+
+
 							}
 
 						}
 
-						if (lengthBlack == 0) {
 
-							if (abs(abs(dy) - lengthWhite) == 1 && lengthWhite != 0) {
-								field->DeleteCell(PrevPos.first, PrevPos.second);
-								field->DeleteCell(lengthWhite, lengthWhite);
-								field->SetCell(endPos.first, endPos.second, cellQueen.GetState());
-								return true;
-							}
-							else {
-								field->DeleteCell(PrevPos.first, PrevPos.second);
-								field->SetCell(endPos.first, endPos.second, cellQueen.GetState());
-								return true;
-							}
-
-
-						}
 					}
 
 				}
