@@ -24,34 +24,28 @@ void Field::CreateField()
 			if (iColCount % 2 == 0) {
 				
 				if (iRowCount % 2 != 0 && iColCount < (this->iSizeField) - 5) {
-					
-					Cells::position pos = Cells::position(iRowCount,iColCount);
+										
 					Cells c(Cells::State::BLACK);
 					(*i) = c;
 				}
-				else if (iRowCount % 2 != 0 && iColCount > (this->iSizeField) - 4) {
-					Cells::position pos = Cells::position(iRowCount, iColCount);
+				else if (iRowCount % 2 != 0 && iColCount > (this->iSizeField) - 4) {					
 					Cells c(Cells::State::WHITE);
 					(*i) = c;
 				}
-				else { 
-					Cells::position pos = Cells::position(iRowCount, iColCount);
+				else { 					
 					Cells c(Cells::State::EMPTY);
 					(*i) = c;}
 			}
 			else if (iColCount % 2 != 0) {
-				if (iRowCount % 2 == 0 && iColCount < (this->iSizeField) - 5) {
-					Cells::position pos = Cells::position(iRowCount, iColCount);
+				if (iRowCount % 2 == 0 && iColCount < (this->iSizeField) - 5) {					
 					Cells c(Cells::State::BLACK);
 					(*i) = c;
 				}
-				else if (iRowCount % 2 == 0 && iColCount > (this->iSizeField) - 4) {
-					Cells::position pos = Cells::position(iRowCount, iColCount);
+				else if (iRowCount % 2 == 0 && iColCount > (this->iSizeField) - 4) {					
 					Cells c(Cells::State::WHITE);
 					(*i) = c;
 				}
-				else {
-					Cells::position pos = Cells::position(iRowCount, iColCount);
+				else {					
 					Cells c(Cells::State::EMPTY);
 					(*i) = c;
 				}
@@ -149,35 +143,6 @@ int Field::GetSizeField()
 	return this->iSizeField;
 }
 
-void Field::ChooseCell(std::string cell, Cells & type, Field *field)
-{
-	std::string coords;
-	Cells::position pos;
-
-	char cfirst_letter = toupper(cell[0]);
-	const char * cSecond_letter = &cell[1];
-	int iFirst_letter = static_cast<int>(cfirst_letter)- 65;
-	int iSecond_letter = (atoi(cSecond_letter));
-
-	pos.first = iFirst_letter;
-	pos.second = iSecond_letter;
-
-	type.SetPos(pos);
-	
-	std::cout << std::endl;
-	std::cout << "You choosen :  "<<  cfirst_letter << iSecond_letter << std::endl;
-	std::cout << "You choosen :  "<< iFirst_letter << iSecond_letter << std::endl;
-	/*std::cout << std::endl;
-	std::cout << "enter you coords: ";
-	std::cin >> coords;
-	char cfirst_letter1 = toupper(coords[0]);
-	const char* cSecond_letter1 = &coords[1];
-	int iFirst_letter1 = static_cast<int>(cfirst_letter1) - 65;
-	int iSecond_letter1 = (atoi(cSecond_letter1));
-	field->SetCell(iFirst_letter1, iSecond_letter1, type.GetState());
-	field->DeleteCell(iFirst_letter, iSecond_letter);*/
-}
-
 void Field::DeleteCell(WORD xPos, WORD yPos)
 {
 	for (int j = 0; j < this->iSizeField; j++) {
@@ -202,28 +167,84 @@ void Field::SetCell(WORD xPos, WORD yPos, Cells::State cell)
 
 bool Field::ValidateChoose(Cells::position Pos, Cells cellPawn, Cells cellQueen)
 {
-		short int limit = 7;
+	short int limit = 7;
 	
-		if ((Pos.first >= 0 && Pos.first <= limit) && (Pos.second >= 0 && Pos.second <= limit)) { //сначала проверяем на принадлежность координат полю
 
-			if (this->cells[Pos.second][Pos.first].GetState() != Cells::State::EMPTY && this->cells[Pos.second][Pos.first].GetState() == cellPawn.GetState()){ //проверка на соответствие типа шашки и не пустой клетки
+	this->CheckSteps();
+	if (this->isAttackedWhite || this->isAttackedBlack) {
 
-				
-				this->QueenMade();
-				
-				if (CheckCondition(cellPawn, Pos, limit)) return true;
-				this->QueenMade();
-			}
-			else
-				if (this->cells[Pos.second][Pos.first].GetState() != Cells::State::EMPTY && this->cells[Pos.second][Pos.first].GetState() == cellQueen.GetState()) {
-					this->QueenMade();
+		if (cellPawn.GetState() == Cells::State::WHITE && this->isAttackedWhite || 
+			cellPawn.GetState() == Cells::State::BLACK && this->isAttackedBlack) {
+			if (cells[Pos.second][Pos.first].GetCutt() == Cells::isCutting::YES) {
+				if ((Pos.first >= 0 && Pos.first <= limit) && (Pos.second >= 0 && Pos.second <= limit)) { //сначала проверяем на принадлежность координат полю
 
-					if (CheckCondition(cellQueen, Pos, limit)) return true;
-					this->QueenMade();
+					if (this->cells[Pos.second][Pos.first].GetState() != Cells::State::EMPTY && this->cells[Pos.second][Pos.first].GetState() == cellPawn.GetState()) { //проверка на соответствие типа шашки и не пустой клетки
+
+
+						this->QueenMade();
+
+						if (CheckCondition(cellPawn, Pos, limit)) return true;
+
+					}
+					else
+						if (this->cells[Pos.second][Pos.first].GetState() != Cells::State::EMPTY && this->cells[Pos.second][Pos.first].GetState() == cellQueen.GetState()) {
+							this->QueenMade();
+
+							if (CheckCondition(cellQueen, Pos, limit)) return true;
+
+						}
+
 				}
+			}
+			
+		}
+		else {
+			if (cells[Pos.second][Pos.first].GetCutt() == Cells::isCutting::NO)
+				if ((Pos.first >= 0 && Pos.first <= limit) && (Pos.second >= 0 && Pos.second <= limit)) { //сначала проверяем на принадлежность координат полю
 
-	    }
-	
+					if (this->cells[Pos.second][Pos.first].GetState() != Cells::State::EMPTY && this->cells[Pos.second][Pos.first].GetState() == cellPawn.GetState()) { //проверка на соответствие типа шашки и не пустой клетки
+
+
+						this->QueenMade();
+
+						if (CheckCondition(cellPawn, Pos, limit)) return true;
+
+					}
+					else
+						if (this->cells[Pos.second][Pos.first].GetState() != Cells::State::EMPTY && this->cells[Pos.second][Pos.first].GetState() == cellQueen.GetState()) {
+							this->QueenMade();
+
+							if (CheckCondition(cellQueen, Pos, limit)) return true;
+
+						}
+
+				}
+		}
+		
+	}
+	else
+	{
+		if (cells[Pos.second][Pos.first].GetCutt() == Cells::isCutting::NO)
+			if ((Pos.first >= 0 && Pos.first <= limit) && (Pos.second >= 0 && Pos.second <= limit)) { //сначала проверяем на принадлежность координат полю
+
+				if (this->cells[Pos.second][Pos.first].GetState() != Cells::State::EMPTY && this->cells[Pos.second][Pos.first].GetState() == cellPawn.GetState()) { //проверка на соответствие типа шашки и не пустой клетки
+
+
+					this->QueenMade();
+
+					if (CheckCondition(cellPawn, Pos, limit)) return true;
+
+				}
+				else
+					if (this->cells[Pos.second][Pos.first].GetState() != Cells::State::EMPTY && this->cells[Pos.second][Pos.first].GetState() == cellQueen.GetState()) {
+						this->QueenMade();
+
+						if (CheckCondition(cellQueen, Pos, limit)) return true;
+
+					}
+
+			}
+	}
 
 	return false;
 		
@@ -231,7 +252,7 @@ bool Field::ValidateChoose(Cells::position Pos, Cells cellPawn, Cells cellQueen)
 
 bool Field::ValidateSell(Cells::position endPos, Cells cellPawn, Cells cellQueen, Field* field, Cells::position PrevPos)
 {
-
+	this->isEated = false;
 	short int limit = 7;
 	
 
@@ -253,7 +274,20 @@ bool Field::ValidateSell(Cells::position endPos, Cells cellPawn, Cells cellQueen
 							field->DeleteCell(PrevPos.first, PrevPos.second);
 							field->SetCell(endPos.first, endPos.second, cellPawn.GetState());
 							field->DeleteCell(PrevPos.first + (dx) / 2, PrevPos.second + (dy) / 2);
+							this->cells[PrevPos.second + (dy) / 2][PrevPos.first + (dx) / 2].SetCutt(Cells::isCutting::NO);
+							for (int j{ 0 }; j < cells.size(); j++) {
+								for (int i{ 0 }; i < cells.size(); i++) {
+									if (cells[j][i].GetState() == cellPawn.GetState())
+										cells[j][i].SetCutt(Cells::isCutting::NO);
+								}
+							}
+							this->isEated = true;
+							this->isAttackedBlack = false;
+							this->isAttackedWhite = false;
 							this->QueenMade();
+							if (this->cells[PrevPos.second][PrevPos.first].GetState() == Cells::State::BLACK)
+								this->countTryBlack++;
+							else this->countTryWhite++;
 							return true;
 
 						}
@@ -262,25 +296,27 @@ bool Field::ValidateSell(Cells::position endPos, Cells cellPawn, Cells cellQueen
 
 						if (this->cells[PrevPos.second][PrevPos.first].GetState() == Cells::State::WHITE) { // проверка на ход назад (он не допустим)
 
-
+							if (this->cells[PrevPos.second][PrevPos.first].GetCutt() == Cells::isCutting::NO)
 							if ((endPos.second < PrevPos.second && endPos.first > PrevPos.first) ||
 								(endPos.second < PrevPos.second && endPos.first < PrevPos.first)) {
 
 								field->DeleteCell(PrevPos.first, PrevPos.second);
 								field->SetCell(endPos.first, endPos.second, cellPawn.GetState());
 								this->QueenMade();
+								this->countTryWhite++;
 								return true;
 							}
 						}
 						else if (this->cells[PrevPos.second][PrevPos.first].GetState() == Cells::State::BLACK) { // проверка на ход назад (он не допустим)
 
-
+							if (this->cells[PrevPos.second][PrevPos.first].GetCutt() == Cells::isCutting::NO)
 							if ((endPos.second > PrevPos.second && endPos.first > PrevPos.first) ||
 								(endPos.second > PrevPos.second && endPos.first < PrevPos.first)) {
 
 								field->DeleteCell(PrevPos.first, PrevPos.second);
 								field->SetCell(endPos.first, endPos.second, cellPawn.GetState());
 								this->QueenMade();
+								this->countTryBlack++;
 								return true;
 							}
 						}
@@ -297,7 +333,8 @@ bool Field::ValidateSell(Cells::position endPos, Cells cellPawn, Cells cellQueen
 						int dx = endPos.first - PrevPos.first;
 						int dy = endPos.second - PrevPos.second;
 
-
+						
+						if (abs(dx) == abs(dy))
 						if (PrevPos.second != endPos.second && PrevPos.first != endPos.first) {
 
 							bool white{ false };
@@ -354,17 +391,33 @@ bool Field::ValidateSell(Cells::position endPos, Cells cellPawn, Cells cellQueen
 
 							if (!white) {
 
-								
+								if (cells[PrevPos.second][PrevPos.first].GetCutt() == Cells::isCutting::YES) {
 									if (countBlack == 1) {
 										field->DeleteCell(PrevPos.first, PrevPos.second);
 										field->DeleteCell(BlackX, BlackY);
 										field->SetCell(endPos.first, endPos.second, cellQueen.GetState());
+										for (int j{ 0 }; j < cells.size(); j++) {
+											for (int i{ 0 }; i < cells.size(); i++) {
+												if (cells[j][i].GetState() == cellPawn.GetState())
+													cells[j][i].SetCutt(Cells::isCutting::NO);
+											}
+										}
+										this->isAttackedBlack = false;
+										this->isAttackedWhite = false;
+										this->countTryWhite++;
+										this->isEated = true;
 										return true;
 									}
-								else if (countBlack == 0){
-									field->DeleteCell(PrevPos.first, PrevPos.second);
-									field->SetCell(endPos.first, endPos.second, cellQueen.GetState());
-									return true;
+								}
+								else {
+									 if (countBlack == 0) {
+										if (this->cells[PrevPos.second][PrevPos.first].GetCutt() == Cells::isCutting::NO) {
+											field->DeleteCell(PrevPos.first, PrevPos.second);
+											field->SetCell(endPos.first, endPos.second, cellQueen.GetState());
+											this->countTryWhite++;
+											return true;
+										}
+									 }
 								}
 
 
@@ -383,7 +436,7 @@ bool Field::ValidateSell(Cells::position endPos, Cells cellPawn, Cells cellQueen
 						int dx = endPos.first - PrevPos.first;
 						int dy = endPos.second - PrevPos.second;
 
-
+						if (abs(dx) == abs(dy))
 						if (PrevPos.second != endPos.second && PrevPos.first != endPos.first) {
 
 							bool black{ false };
@@ -404,15 +457,16 @@ bool Field::ValidateSell(Cells::position endPos, Cells cellPawn, Cells cellQueen
 								if ((this->cells[counterY][counterX].GetState() == Cells::State::WHITE ||
 									this->cells[counterY][counterX].GetState() == Cells::State::QUEEN_W) &&
 									counterY != PrevPos.second) {
-									black = true;
+									WhiteY = counterY;
+									WhiteX = counterX;
+									countWhite++;
 								}
 
 								if ((this->cells[counterY][counterX].GetState() == Cells::State::BLACK ||
 									this->cells[counterY][counterX].GetState() == Cells::State::QUEEN_B) &&
 									counterY != PrevPos.second) {
-									WhiteY = counterY;
-									WhiteX = counterX;
-									countWhite++;
+									
+									black = true;
 								}
 
 								if (endPos.second > PrevPos.second && endPos.first > PrevPos.first) {
@@ -440,17 +494,31 @@ bool Field::ValidateSell(Cells::position endPos, Cells cellPawn, Cells cellQueen
 
 							if (!black) {
 
-
-								if (countWhite == 1) {
-									field->DeleteCell(PrevPos.first, PrevPos.second);
-									field->DeleteCell(WhiteX, WhiteY);
-									field->SetCell(endPos.first, endPos.second, cellQueen.GetState());
-									return true;
+								if (cells[PrevPos.second][PrevPos.first].GetCutt() == Cells::isCutting::YES) {
+									if (countWhite == 1) {
+										field->DeleteCell(PrevPos.first, PrevPos.second);
+										field->DeleteCell(WhiteX, WhiteY);
+										field->SetCell(endPos.first, endPos.second, cellQueen.GetState());
+										for (int j{ 0 }; j < cells.size(); j++) {
+											for (int i{ 0 }; i < cells.size(); i++) {
+												if (cells[j][i].GetState() == cellPawn.GetState())
+													cells[j][i].SetCutt(Cells::isCutting::NO);
+											}
+										}
+										this->isAttackedBlack = false;
+										this->isAttackedWhite = false;
+										this->countTryBlack++;
+										this->isEated = true;
+										return true;
+									}
 								}
-								else if (countWhite == 0) {
-									field->DeleteCell(PrevPos.first, PrevPos.second);
-									field->SetCell(endPos.first, endPos.second, cellQueen.GetState());
-									return true;
+								else{ 
+									if (countWhite == 0) {
+										field->DeleteCell(PrevPos.first, PrevPos.second);
+										field->SetCell(endPos.first, endPos.second, cellQueen.GetState());
+										this->countTryBlack++;
+										return true;
+									}
 								}
 
 
@@ -470,6 +538,7 @@ bool Field::ValidateSell(Cells::position endPos, Cells cellPawn, Cells cellQueen
 
 			}
 
+			
 		}
 
 	
@@ -535,7 +604,9 @@ bool Field::CheckWhite(Cells cell, Cells::position Pos, short int limit)
 			rightTop = true;
 		}
 
-		if (cells[Pos.second - counter][Pos.first + counter].GetState() == Cells::State::BLACK && counter == 1) {
+		if ((cells[Pos.second - counter][Pos.first + counter].GetState() == Cells::State::BLACK || 
+			cells[Pos.second - counter][Pos.first + counter].GetState() == Cells::State::QUEEN_B
+			) && counter == 1) {
 			isMet = true;
 
 		}
@@ -564,7 +635,8 @@ bool Field::CheckWhite(Cells cell, Cells::position Pos, short int limit)
 			leftTop = true;
 		}
 
-		if (cells[Pos.second - counter][Pos.first - counter].GetState() == Cells::State::BLACK && counter == 1) {
+		if ((cells[Pos.second - counter][Pos.first - counter].GetState() == Cells::State::BLACK ||
+			cells[Pos.second - counter][Pos.first - counter].GetState() == Cells::State::QUEEN_B) && counter == 1) {
 			isMet = true;
 
 		}
@@ -586,7 +658,8 @@ bool Field::CheckWhite(Cells cell, Cells::position Pos, short int limit)
 	// проверка нижней диагонали справа от шашки
 	while ((Pos.second + counter <= limit) && (Pos.first + counter <= limit)) {
 		
-		if (cells[Pos.second + counter][Pos.first + counter].GetState() == Cells::State::BLACK && counter == 1) {
+		if ((cells[Pos.second + counter][Pos.first + counter].GetState() == Cells::State::BLACK || 
+			cells[Pos.second + counter][Pos.first + counter].GetState() == Cells::State::QUEEN_B) && counter == 1) {
 			isMet = true;
 
 		}
@@ -611,7 +684,8 @@ bool Field::CheckWhite(Cells cell, Cells::position Pos, short int limit)
 
 		
 
-		if (cells[Pos.second + counter][Pos.first - counter].GetState() == Cells::State::BLACK && counter == 1) {
+		if ((cells[Pos.second + counter][Pos.first - counter].GetState() == Cells::State::BLACK||
+			cells[Pos.second + counter][Pos.first - counter].GetState() == Cells::State::QUEEN_B) && counter == 1) {
 			isMet = true;
 
 		}
@@ -631,7 +705,7 @@ bool Field::CheckWhite(Cells cell, Cells::position Pos, short int limit)
 
 
 
-	if ((leftTop || rightTop || leftBottom || rightBottom) && !this->isAttackedWhite)
+	if ((leftTop || rightTop || leftBottom || rightBottom))
 		return true;
 
 	return false;
@@ -742,7 +816,7 @@ bool Field::CheckWhiteQueen(Cells cell, Cells::position Pos, short int limit)
 
 
 
-	if ((leftTop || rightTop || leftBottom || rightBottom) && !this->isAttackedWhite)
+	if ((leftTop || rightTop || leftBottom || rightBottom))
 		return true;
 
 
@@ -766,7 +840,8 @@ bool Field::CheckBlack(Cells cell, Cells::position Pos, short int limit)
 		
 
 
-		if (cells[Pos.second - counter][Pos.first + counter].GetState() == Cells::State::BLACK && counter == 1) {
+		if ((cells[Pos.second - counter][Pos.first + counter].GetState() == Cells::State::WHITE ||
+			cells[Pos.second - counter][Pos.first + counter].GetState() == Cells::State::QUEEN_W) && counter == 1) {
 			isMet = true;
 
 		}
@@ -790,7 +865,8 @@ bool Field::CheckBlack(Cells cell, Cells::position Pos, short int limit)
 	while ((Pos.first - counter >= 0) && (Pos.second - counter >= 0)) {
 
 		
-		if (cells[Pos.second - counter][Pos.first - counter].GetState() == Cells::State::BLACK && counter == 1) {
+		if ((cells[Pos.second - counter][Pos.first - counter].GetState() == Cells::State::WHITE ||
+			cells[Pos.second - counter][Pos.first - counter].GetState() == Cells::State::QUEEN_W) && counter == 1) {
 			isMet = true;
 
 		}
@@ -814,7 +890,8 @@ bool Field::CheckBlack(Cells cell, Cells::position Pos, short int limit)
 			rightBottom = true;
 		}
 
-		if (cells[Pos.second + counter][Pos.first + counter].GetState() == Cells::State::WHITE && counter == 1) {
+		if ((cells[Pos.second + counter][Pos.first + counter].GetState() == Cells::State::WHITE ||
+			cells[Pos.second + counter][Pos.first + counter].GetState() == Cells::State::QUEEN_W) && counter == 1) {
 			isMet = true;
 
 		}
@@ -843,7 +920,8 @@ bool Field::CheckBlack(Cells cell, Cells::position Pos, short int limit)
 			leftBottom = true;
 		}
 
-		if (cells[Pos.second + counter][Pos.first - counter].GetState() == Cells::State::WHITE && counter == 1) {
+		if ((cells[Pos.second + counter][Pos.first - counter].GetState() == Cells::State::WHITE||
+			cells[Pos.second + counter][Pos.first - counter].GetState() == Cells::State::QUEEN_W) && counter == 1) {
 			isMet = true;
 
 		}
@@ -858,7 +936,7 @@ bool Field::CheckBlack(Cells cell, Cells::position Pos, short int limit)
 		counter++;
 	}
 
-	if ((leftTop || rightTop || leftBottom || rightBottom) && !this->isAttackedBlack)
+	if ((leftTop || rightTop || leftBottom || rightBottom))
 		return true;
 
 
@@ -967,7 +1045,7 @@ bool Field::CheckBlackQueen(Cells cell, Cells::position Pos, short int limit)
 
 
 
-	if ((leftTop || rightTop || leftBottom || rightBottom) && !this->isAttackedWhite)
+	if ((leftTop || rightTop || leftBottom || rightBottom))
 		return true;
 
 
@@ -978,15 +1056,18 @@ bool Field::CheckBlackQueen(Cells cell, Cells::position Pos, short int limit)
 void Field::CheckSteps()
 {
 	int limit = 7;
-	
+
 	for (int j = 0; j < this->iSizeField; j++) {
 		for (int i = 0; i < this->iSizeField; i++) {
-			if (cells[j][i].GetState() == Cells::State::WHITE) {
+			if (cells[j][i].GetState() == Cells::State::WHITE ||
+				cells[j][i].GetState() == Cells::State::QUEEN_W
+				) {
 
 				int counter{ 1 };
 				int yPos = j;
 				int xPos = i;
 
+				
 
 				bool rightTopFirst{ false };
 				bool rightTopFirstEmpty{ false };
@@ -1007,12 +1088,63 @@ void Field::CheckSteps()
 				bool leftBottomSecondEmpty{ false };
 
 
-			
+				// проверка верхней диагонали слева от шашки
 
+				
+				while ((yPos - counter >= 0) && (xPos - counter >= 0)) {
+
+
+
+					if ((cells[yPos - counter][xPos - counter].GetState() == Cells::State::BLACK || cells[yPos - counter][xPos - counter].GetState() == Cells::State::QUEEN_B) && counter == 1) {
+
+						leftTopFirst = true;
+
+					}
+					else if (cells[yPos - counter][xPos - counter].GetState() == Cells::State::EMPTY && counter == 1) {
+						leftTopFirstEmpty = true;
+					}
+
+					if ((cells[yPos - counter][xPos - counter].GetState() == Cells::State::EMPTY && counter == 2) == true) {
+
+						leftTopSecondEmpty = true;
+					}
+
+
+					counter++;
+				}
+
+				
+
+				// проверка нижней диагонали слева от шашки
+
+				counter = 1;
+
+				while ((xPos - counter >= 0) && (yPos + counter <= limit)) {
+
+
+
+					if ((cells[yPos + counter][xPos - counter].GetState() == Cells::State::BLACK || cells[yPos + counter][xPos - counter].GetState() == Cells::State::QUEEN_B) && counter == 1) {
+						leftBottomFirst = true;
+
+					}
+					else if (cells[yPos + counter][xPos - counter].GetState() == Cells::State::EMPTY && counter == 1)
+						leftBottomFirstEmpty = true;
+
+					if ((cells[yPos + counter][xPos - counter].GetState() == Cells::State::EMPTY && counter == 2)) {
+
+						leftBottomSecondEmpty = true;
+					}
+
+					counter++;
+				}
+
+				counter = 1;
+			
+				// проверка нижней диагонали справа от шашки
 				while ((yPos - counter >= 0) && (xPos + counter <= limit)) {
 
 
-					if (cells[yPos - counter][xPos + counter].GetState() == Cells::State::BLACK && counter == 1) {
+					if ((cells[yPos - counter][xPos + counter].GetState() == Cells::State::BLACK || cells[yPos - counter][xPos + counter].GetState() == Cells::State::QUEEN_B) && counter == 1) {
 						
 						rightTopFirst = true;
 					}
@@ -1029,40 +1161,12 @@ void Field::CheckSteps()
 
 
 
-				// проверка верхней диагонали слева от шашки
-
 				counter = 1;
-
-				while ((yPos - counter >= 0) && (xPos - counter >= 0)) {
-
-
-
-					if (cells[yPos - counter][xPos - counter].GetState() == Cells::State::BLACK && counter == 1) {
-
-						leftTopFirst = true;
-
-					}
-					else if (cells[yPos - counter][xPos - counter].GetState() == Cells::State::EMPTY && counter == 1) {
-						leftTopFirstEmpty = true;
-					}
-
-					if ((cells[yPos - counter][xPos - counter].GetState() == Cells::State::EMPTY && counter == 2) == true) {
-
-						leftTopSecondEmpty = true;
-					}
-
-
-					counter++;
-				}
-
-				counter = 1;
-
-
 
 				// проверка нижней диагонали справа от шашки
 				while ((yPos + counter <= limit) && (xPos + counter <= limit)) {
 
-					if (cells[yPos + counter][xPos + counter].GetState() == Cells::State::BLACK && counter == 1) {
+					if ((cells[yPos + counter][xPos + counter].GetState() == Cells::State::BLACK || cells[yPos + counter][xPos + counter].GetState() == Cells::State::QUEEN_B) && counter == 1) {
 						rightBottomFirst = true;
 
 					} 
@@ -1079,53 +1183,43 @@ void Field::CheckSteps()
 				}
 
 
-
-				// проверка нижней диагонали слева от шашки
-
-				counter = 1;
-
-				while ((xPos - counter >= 0) && (yPos + counter <= limit)) {
-
-
-
-					if (cells[yPos + counter][xPos - counter].GetState() == Cells::State::BLACK && counter == 1) {
-						leftBottomFirst = true;
-
-					}
-					else if (cells[yPos + counter][xPos - counter].GetState() == Cells::State::EMPTY && counter == 1)
-						leftBottomFirstEmpty = true;
-
-					if ((cells[yPos + counter][xPos - counter].GetState() == Cells::State::EMPTY && counter == 2)) {
-
-						leftBottomSecondEmpty = true;
-					}
-
-					counter++;
-				}
-
+				
+				
+				// проверка ссверху
 				if ((rightTopFirst && rightTopSecondEmpty && !leftBottomFirstEmpty) || (leftTopFirst && leftTopSecondEmpty && !rightBottomFirstEmpty)) {
 					this->isAttackedWhite = true;
-					
+					cells[j][i].SetCutt(Cells::isCutting::YES);
 				}
 					
 
 				if ((rightTopFirst && rightTopSecondEmpty && leftBottomFirstEmpty) || (leftTopFirst && leftTopSecondEmpty && rightBottomFirstEmpty)) {
 					this->isAttackedWhite = true;
-					this->isAttackedBlack = true;
+					cells[j][i].SetCutt(Cells::isCutting::YES);
 				}
 					
-				if ((rightBottomFirst && rightBottomSecond) || (leftBottomFirst && leftBottomSecondEmpty))
-					this->isAttackedWhite;
+				// проверка снизу
+				if ((rightBottomFirst && rightBottomSecondEmpty && !leftTopFirstEmpty) || (leftBottomFirst && leftBottomSecondEmpty && !rightTopFirstEmpty)) {
+					this->isAttackedWhite = true;
+					cells[j][i].SetCutt(Cells::isCutting::YES);
+				}
+
+
+				if ((rightBottomFirst && rightBottomSecondEmpty && leftTopFirstEmpty) || (leftBottomFirst && leftBottomSecondEmpty && rightTopFirstEmpty)) {
+					this->isAttackedWhite = true;
+					cells[j][i].SetCutt(Cells::isCutting::YES);
+				}
 
 			}
 
 
-
-			if (cells[j][i].GetState() == Cells::State::BLACK) {
+			if (cells[j][i].GetState() == Cells::State::BLACK ||
+				cells[j][i].GetState() == Cells::State::QUEEN_B)
+			{
 
 				int counter{ 1 };
 				int yPos = j;
 				int xPos = i;
+
 
 
 				bool rightTopFirst{ false };
@@ -1147,37 +1241,14 @@ void Field::CheckSteps()
 				bool leftBottomSecondEmpty{ false };
 
 
-
-
-				while ((yPos - counter >= 0) && (xPos + counter <= limit)) {
-
-
-					if (cells[yPos - counter][xPos + counter].GetState() == Cells::State::WHITE && counter == 1) {
-
-						rightTopFirst = true;
-					}
-					else if (cells[yPos - counter][xPos + counter].GetState() == Cells::State::EMPTY && counter == 1) {
-						rightTopFirstEmpty = true;
-					}
-
-					if ((cells[yPos - counter][xPos + counter].GetState() == Cells::State::EMPTY && counter == 2)) {
-						rightTopSecondEmpty = true;
-					}
-
-					counter++;
-				}
-
-
-
 				// проверка верхней диагонали слева от шашки
 
-				counter = 1;
 
 				while ((yPos - counter >= 0) && (xPos - counter >= 0)) {
 
 
 
-					if (cells[yPos - counter][xPos - counter].GetState() == Cells::State::WHITE && counter == 1) {
+					if ((cells[yPos - counter][xPos - counter].GetState() == Cells::State::WHITE || cells[yPos - counter][xPos - counter].GetState() == Cells::State::QUEEN_W) && counter == 1) {
 
 						leftTopFirst = true;
 
@@ -1197,12 +1268,58 @@ void Field::CheckSteps()
 
 				counter = 1;
 
+				// проверка нижней диагонали слева от шашки
+
+				
+
+				while ((xPos - counter >= 0) && (yPos + counter <= limit)) {
+
+
+
+					if ((cells[yPos + counter][xPos - counter].GetState() == Cells::State::WHITE || cells[yPos + counter][xPos - counter].GetState() == Cells::State::QUEEN_W) && counter == 1) {
+						leftBottomFirst = true;
+
+					}
+					else if (cells[yPos + counter][xPos - counter].GetState() == Cells::State::EMPTY && counter == 1)
+						leftBottomFirstEmpty = true;
+
+					if ((cells[yPos + counter][xPos - counter].GetState() == Cells::State::EMPTY && counter == 2)) {
+
+						leftBottomSecondEmpty = true;
+					}
+
+					counter++;
+				}
+
+				counter = 1;
+
+				// проверка нижней диагонали справа от шашки
+				while ((yPos - counter >= 0) && (xPos + counter <= limit)) {
+
+
+					if ((cells[yPos - counter][xPos + counter].GetState() == Cells::State::WHITE || cells[yPos - counter][xPos + counter].GetState() == Cells::State::QUEEN_W) && counter == 1) {
+
+						rightTopFirst = true;
+					}
+					else if (cells[yPos - counter][xPos + counter].GetState() == Cells::State::EMPTY && counter == 1) {
+						rightTopFirstEmpty = true;
+					}
+
+					if ((cells[yPos - counter][xPos + counter].GetState() == Cells::State::EMPTY && counter == 2)) {
+						rightTopSecondEmpty = true;
+					}
+
+					counter++;
+				}
+
+
+				counter = 1;
 
 
 				// проверка нижней диагонали справа от шашки
 				while ((yPos + counter <= limit) && (xPos + counter <= limit)) {
 
-					if (cells[yPos + counter][xPos + counter].GetState() == Cells::State::WHITE && counter == 1) {
+					if ((cells[yPos + counter][xPos + counter].GetState() == Cells::State::WHITE || cells[yPos + counter][xPos + counter].GetState() == Cells::State::QUEEN_W) && counter == 1) {
 						rightBottomFirst = true;
 
 					}
@@ -1220,44 +1337,39 @@ void Field::CheckSteps()
 
 
 
-				// проверка нижней диагонали слева от шашки
 
-				counter = 1;
-
-				while ((xPos - counter >= 0) && (yPos + counter <= limit)) {
-
-
-
-					if (cells[yPos + counter][xPos - counter].GetState() == Cells::State::WHITE && counter == 1) {
-						leftBottomFirst = true;
-
-					}
-					else if (cells[yPos + counter][xPos - counter].GetState() == Cells::State::EMPTY && counter == 1)
-						leftBottomFirstEmpty = true;
-
-					if ((cells[yPos + counter][xPos - counter].GetState() == Cells::State::EMPTY && counter == 2)) {
-
-						leftBottomSecondEmpty = true;
-					}
-
-					counter++;
-				}
-
-				if ((rightBottomFirst && rightBottomSecondEmpty && !leftTopFirstEmpty) || (leftBottomFirst && leftBottomSecondEmpty && !rightTopFirstEmpty))
-					this->isAttackedWhite = true;
-
-				if ((rightBottomFirst && rightBottomSecondEmpty && leftTopFirstEmpty) || (leftBottomFirst && leftBottomSecondEmpty && rightTopFirstEmpty)) {
-					this->isAttackedWhite = true;
+				// проверка ссверху
+				if ((rightTopFirst && rightTopSecondEmpty && !leftBottomFirstEmpty) || (leftTopFirst && leftTopSecondEmpty && !rightBottomFirstEmpty)) {
 					this->isAttackedBlack = true;
+					cells[j][i].SetCutt(Cells::isCutting::YES);
 				}
 
-				if ((rightTopFirst && rightTopSecond) || (leftTopFirst && leftTopSecondEmpty))
-					this->isAttackedWhite;
+
+				if ((rightTopFirst && rightTopSecondEmpty && leftBottomFirstEmpty) || (leftTopFirst && leftTopSecondEmpty && rightBottomFirstEmpty)) {
+					this->isAttackedBlack = true;
+					cells[j][i].SetCutt(Cells::isCutting::YES);
+				}
+
+
+				// проверка снизу
+				if ((rightBottomFirst && rightBottomSecondEmpty && !leftTopFirstEmpty) || (leftBottomFirst && leftBottomSecondEmpty && !rightTopFirstEmpty)) {
+					this->isAttackedBlack = true;
+					cells[j][i].SetCutt(Cells::isCutting::YES);
+				}
+
+
+				if ((rightBottomFirst && rightBottomSecondEmpty && leftTopFirstEmpty) || (leftBottomFirst && leftBottomSecondEmpty && rightTopFirstEmpty)) {					
+					this->isAttackedBlack = true;
+					cells[j][i].SetCutt(Cells::isCutting::YES);
+				}
+
 
 			}
+			
 
 		}
 	}
+
 
 }
 
@@ -1279,4 +1391,30 @@ void Field::QueenMade()
 			}
 		}
 	}
+}
+
+bool Field::Victory()
+{
+	int countWhite{ 0 };
+	int countBlack{ 0 };
+	for (int j{ 0 }; j < this->iSizeField; j++) {
+		for (int i{ 0 }; i < this->iSizeField; i++) {
+			if (this->cells[j][i].GetState() == Cells::State::WHITE ||
+				this->cells[j][i].GetState() == Cells::State::QUEEN_W)
+				countWhite++;
+			if (this->cells[j][i].GetState() == Cells::State::BLACK ||
+				this->cells[j][i].GetState() == Cells::State::QUEEN_B)
+				countBlack++;
+				
+		}
+	}
+
+	if (countBlack == 0 && countWhite > 0) { 
+		this->blackWin = true;
+		return true; }
+	else if (countWhite == 0 && countBlack > 0) { 
+		this->whiteWin = true;
+		return true; }
+	else
+		return false;
 }

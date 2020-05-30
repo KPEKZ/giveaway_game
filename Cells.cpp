@@ -1,10 +1,9 @@
 #include "Cells.h"
 
-Cells::Cells(/*const position& position, */State state) : Fstate(state)
+Cells::Cells(State state) : Fstate(state)
 {
-	//this->state = state;
-	//this->pos = position;
-}
+	this->cutt = isCutting::NO;
+ }
 
 Cells::Cells()
 {

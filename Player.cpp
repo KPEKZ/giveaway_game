@@ -38,10 +38,17 @@ bool Player::MakeMove()
 				Cells::position endPos;
 				endPos = this->field->CoordPerform(s);
 
-				if (this->field->ValidateSell(endPos, this->cellPawn,this->cellQueen, this->field, pos))
-				{
+				if (this->field->ValidateSell(endPos, this->cellPawn, this->cellQueen, this->field, pos)) {
 
-					return true;
+					if (this->field->isEated)
+						this->field->CheckSteps();
+					if (!this->field->isAttackedWhite || !this->field->isAttackedBlack) {
+						return true;
+					}
+
+					this->field->isAttackedBlack = false;
+					this->field->isAttackedWhite = false;
+					this->field->isEated = false;
 				}
 			}
 

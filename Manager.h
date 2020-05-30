@@ -8,7 +8,9 @@ private:
 	Player* player2;
 	Player* currentPlayer;
 	Field *field;
+	
 public:
+	bool gGameFinished{ false };
 	Manager();
 	bool Init();
 	void MakeMove();
